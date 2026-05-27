@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anatomopathologie — QCM</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117;
+    --surface: #161b27;
+    --surface2: #1e2536;
+    --border: #2a3347;
+    --accent: #c8a96e;
+    --accent2: #e8c98e;
+    --text: #e8eaf0;
+    --text-muted: #8492a6;
+    --correct: #4ade80;
+    --wrong: #f87171;
+    --correct-bg: rgba(74,222,128,0.08);
+    --wrong-bg: rgba(248,113,113,0.08);
+    --correct-border: rgba(74,222,128,0.35);
+    --wrong-border: rgba(248,113,113,0.35);
+    --radius: 14px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    background: var(--surface);
+  }
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    color: var(--accent2);
+    letter-spacing: 0.02em;
+  }
+  .logo span { color: var(--text-muted); font-size: 0.8rem; font-family: 'DM Sans', sans-serif; display: block; font-weight: 300; }
+  .header-stats {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  .stat-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+  .stat-chip b { color: var(--accent); font-size: 1rem; display: block; }
+
+  /* ─── MAIN LAYOUT ─── */
+  main {
+    flex: 1;
+    max-width: 820px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+
+  /* ─── PROGRESS ─── */
+  .progress-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+  .progress-bar-wrap {
+    height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    margin-bottom: 28px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+
+  /* ─── CARD ─── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+  .card-number {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .question-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.18rem;
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 28px;
+  }
+  .options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .option-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    text-align: left;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(200,169,110,0.07);
+  }
+  .option-btn.selected {
+    border-color: var(--accent);
+    background: rgba(200,169,110,0.12);
+  }
+  .option-btn.correct {
+    border-color: var(--correct-border);
+    background: var(--correct-bg);
+    color: var(--correct);
+  }
+  .option-btn.wrong {
+    border-color: var(--wrong-border);
+    background: var(--wrong-bg);
+    color: var(--wrong);
+  }
+  .option-btn.missed {
+    border-color: var(--correct-border);
+    background: var(--correct-bg);
+    color: var(--correct);
+    opacity: 0.75;
+  }
+  .option-btn:disabled { cursor: default; }
+  .option-letter {
+    min-width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+    transition: background 0.18s;
+  }
+  .option-btn.selected .option-letter { background: var(--accent); color: var(--bg); }
+  .option-btn.correct .option-letter { background: var(--correct); color: var(--bg); }
+  .option-btn.wrong .option-letter { background: var(--wrong); color: var(--bg); }
+  .option-btn.missed .option-letter { background: var(--correct); color: var(--bg); }
+
+  /* ─── EXPLANATION ─── */
+  .explanation {
+    margin-top: 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: var(--text-muted);
+    animation: fadeIn 0.3s ease;
+  }
+  .explanation strong { color: var(--accent2); }
+  .result-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 99px;
+    margin-bottom: 10px;
+  }
+  .result-badge.ok { background: rgba(74,222,128,0.12); color: var(--correct); }
+  .result-badge.ko { background: rgba(248,113,113,0.12); color: var(--wrong); }
+
+  /* ─── ACTIONS ─── */
+  .actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 10px;
+    padding: 13px 28px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+    letter-spacing: 0.03em;
+  }
+  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.4; cursor: default; transform: none; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ─── RESULTS SCREEN ─── */
+  .results-screen {
+    text-align: center;
+    padding: 48px 24px;
+  }
+  .results-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    color: var(--accent2);
+    margin-bottom: 8px;
+  }
+  .results-subtitle {
+    color: var(--text-muted);
+    margin-bottom: 36px;
+    font-size: 0.92rem;
+  }
+  .score-ring {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    margin: 0 auto 36px;
+  }
+  .score-ring svg { transform: rotate(-90deg); }
+  .score-ring .score-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transform: none;
+  }
+  .score-pct { font-size: 2.2rem; font-weight: 700; color: var(--accent2); }
+  .score-label { font-size: 0.72rem; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; }
+  .results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    max-width: 460px;
+    margin: 0 auto 36px;
+  }
+  .res-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 12px;
+  }
+  .res-val { font-size: 1.6rem; font-weight: 700; }
+  .res-val.g { color: var(--correct); }
+  .res-val.r { color: var(--wrong); }
+  .res-val.a { color: var(--accent); }
+  .res-lbl { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; }
+
+  /* ─── MODE SELECTOR ─── */
+  .mode-selector {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    margin-bottom: 28px;
+  }
+  .mode-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    color: var(--accent2);
+    margin-bottom: 20px;
+  }
+  .mode-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .mode-opt {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: left;
+  }
+  .mode-opt:hover { border-color: var(--accent); }
+  .mode-opt.active { border-color: var(--accent); background: rgba(200,169,110,0.1); }
+  .mode-opt-title { font-weight: 600; font-size: 0.9rem; color: var(--text); margin-bottom: 4px; }
+  .mode-opt-desc { font-size: 0.78rem; color: var(--text-muted); }
+  .n-selector {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .n-selector label { font-size: 0.85rem; color: var(--text-muted); }
+  .n-selector input[type=range] {
+    flex: 1;
+    min-width: 120px;
+    accent-color: var(--accent);
+  }
+  .n-count { font-weight: 700; color: var(--accent); min-width: 2ch; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 540px) {
+    header { padding: 16px 18px; }
+    main { padding: 20px 14px; }
+    .card { padding: 22px 18px; }
+    .question-text { font-size: 1rem; }
+    .mode-options { grid-template-columns: 1fr; }
+    .results-grid { grid-template-columns: 1fr 1fr 1fr; }
+    .header-stats { gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    Anatomopathologie
+    <span>QCM · Cartes de révision</span>
+  </div>
+  <div class="header-stats">
+    <div class="stat-chip"><b id="hdr-total">160</b>questions</div>
+    <div class="stat-chip"><b id="hdr-score">–</b>score</div>
+  </div>
+</header>
+
+<main>
+  <!-- MODE SELECTOR -->
+  <div id="mode-screen">
+    <div class="mode-selector">
+      <div class="mode-title">Choisir le mode</div>
+      <div class="mode-options">
+        <div class="mode-opt active" data-mode="exam" onclick="selectMode('exam')">
+          <div class="mode-opt-title">📋 Examen</div>
+          <div class="mode-opt-desc">Répondre puis valider, score final</div>
+        </div>
+        <div class="mode-opt" data-mode="flash" onclick="selectMode('flash')">
+          <div class="mode-opt-title">⚡ Révision rapide</div>
+          <div class="mode-opt-desc">Voir la réponse immédiatement</div>
+        </div>
+      </div>
+      <div class="n-selector">
+        <label>Nombre de questions :</label>
+        <input type="range" min="5" max="160" step="5" value="20" id="n-range" oninput="updateN(this.value)">
+        <span class="n-count" id="n-display">20</span>
+        <label>/ 160</label>
+      </div>
+      <br>
+      <label style="font-size:0.85rem; color:var(--text-muted); display:flex; align-items:center; gap:8px; cursor:pointer;">
+        <input type="checkbox" id="shuffle-chk" checked style="accent-color:var(--accent);">
+        Mélanger les questions
+      </label>
+    </div>
+    <button class="btn-primary" onclick="startQuiz()" style="width:100%; padding:16px;">Commencer →</button>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quiz-screen" class="hidden">
+    <div class="progress-row">
+      <span id="prog-label">Question 1 / 20</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="prog-fill" style="width:0%"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-number" id="card-num">QCM 001</div>
+      <div class="question-text" id="question-text"></div>
+      <div class="options-grid" id="options-grid"></div>
+      <div class="explanation hidden" id="explanation"></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="btn-validate" onclick="validate()">Valider</button>
+      <button class="btn-primary hidden" id="btn-next" onclick="nextQuestion()">Suivant →</button>
+      <button class="btn-ghost" onclick="goHome()">← Quitter</button>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="results-screen" class="hidden results-screen">
+    <div class="results-title">Résultats</div>
+    <div class="results-subtitle" id="res-subtitle"></div>
+    <div class="score-ring">
+      <svg width="160" height="160" viewBox="0 0 160 160">
+        <circle cx="80" cy="80" r="66" fill="none" stroke="#2a3347" stroke-width="12"/>
+        <circle cx="80" cy="80" r="66" fill="none" stroke="url(#grad)" stroke-width="12"
+          stroke-linecap="round" id="ring-circle"
+          stroke-dasharray="415" stroke-dashoffset="415"/>
+        <defs>
+          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#c8a96e"/>
+            <stop offset="100%" stop-color="#e8c98e"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="score-text">
+        <span class="score-pct" id="res-pct">0%</span>
+        <span class="score-label">Score</span>
+      </div>
+    </div>
+    <div class="results-grid">
+      <div class="res-card">
+        <div class="res-val g" id="res-correct">0</div>
+        <div class="res-lbl">Correctes</div>
+      </div>
+      <div class="res-card">
+        <div class="res-val r" id="res-wrong">0</div>
+        <div class="res-lbl">Incorrectes</div>
+      </div>
+      <div class="res-card">
+        <div class="res-val a" id="res-total-n">0</div>
+        <div class="res-lbl">Questions</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn-primary" onclick="restartSame()">Recommencer</button>
+      <button class="btn-ghost" onclick="goHome()">Accueil</button>
+    </div>
+  </div>
+</main>
+
+<script>
+const CARDS = [{"question":"Concernant le processus inflammatoire :","A":"C'est une réponse à une agression","B":"Concerne uniquement les organismes unicellulaires","C":"Peut être nocif","D":"Est équivalent à une infection","E":"Se déroule préférentiellement dans un tissu vascularisé","source":"","answer":"ACE","explanation":"L'inflammation est une réponse à une agression et survient surtout dans les tissus vascularisés. Elle peut devenir nocive. L'infection n'est qu'une cause parmi d'autres de l'inflammation."},{"question":"Parmi les caractéristiques du processus inflammatoire :","A":"C'est un phénomène omni-tissulaire","B":"Il est absent dans le cartilage","C":"Il concerne uniquement les muqueuses","D":"Le tissu conjonctif est son lieu de prédilection","E":"Il est impossible dans la cornée","source":"","answer":"ABDE","explanation":"Le processus inflammatoire touche pratiquement tous les tissus mais il est absent des tissus avasculaires comme le cartilage et la cornée. Le tissu conjonctif est le principal siège de l'inflammation."},{"question":"Les moyens de défense statique comprennent :","A":"La peau","B":"Les IgA sécrétoires","C":"Les macrophages","D":"Les mucosécrétions","E":"Les enzymes de surface épithéliale","source":"","answer":"ABDE","explanation":"Les défenses statiques comprennent les barrières physiques et chimiques comme la peau, les muqueuses, les IgA et les enzymes. Les macrophages appartiennent plutôt aux défenses cellulaires."},{"question":"Concernant les phagocytes :","A":"Ils sont mobiles","B":"Ils possèdent des pseudopodes","C":"Les lymphocytes sont des phagocytes majeurs","D":"Ils peuvent adhérer aux agents pathogènes","E":"Ils peuvent ingérer des corps figurés","source":"","answer":"ABDE","explanation":"Les phagocytes ont une mobilité active, émettent des pseudopodes et réalisent la phagocytose. Les lymphocytes ne sont pas des phagocytes."},{"question":"La coloration utilisée dans la tuberculose peut être :","A":"Ziehl","B":"Auramine","C":"PAS","D":"Gomori Grocott","E":"HES uniquement","source":"","answer":"AB","explanation":"Les colorations classiques de recherche du BK sont Ziehl et Auramine. PAS et Gomori servent surtout aux champignons."},{"question":"Concernant la réaction folliculaire tuberculeuse :","A":"Elle contient des cellules géantes","B":"Elle contient des cellules épithélioïdes","C":"Elle contient une couronne lymphocytaire","D":"Elle est riche en BK","E":"Elle est dépourvue de BK","source":"","answer":"CE","explanation":"La réaction folliculaire simple est pauvre ou dépourvue de BK et comporte surtout une couronne lymphocytaire."},{"question":"En tuberculose pulmonaire, la biopsie peut montrer :","A":"Une nécrose caséeuse","B":"Des cellules géantes","C":"Des granulomes","D":"Des cellules épithélioïdes","E":"Une absence totale d'inflammation","source":"","answer":"ABCD","explanation":"Les lésions typiques de la tuberculose associent granulomes, cellules géantes, cellules épithélioïdes et nécrose caséeuse."},{"question":"Concernant la sarcoïdose :","A":"Présence de granulomes","B":"Présence de nécrose caséeuse importante","C":"Présence de corps astéroïdes","D":"Présence de corps de Schaumann","E":"Présence de cellules géantes","source":"","answer":"ACDE","explanation":"La sarcoïdose donne une inflammation granulomateuse sans nécrose caséeuse."},{"question":"Les cellules épithélioïdes :","A":"Ont une importante fonction sécrétoire","B":"Participent à l'isolement de l'agent pathogène","C":"Sont des lymphocytes modifiés","D":"Ont perdu une partie de leur capacité phagocytaire","E":"Ont un cytoplasme abondant","source":"","answer":"ABDE","explanation":"Les cellules épithélioïdes dérivent des macrophages activés et participent à la formation du granulome."},{"question":"La diapédèse :","A":"Correspond au passage des leucocytes à travers la paroi vasculaire","B":"Concerne principalement les polynucléaires","C":"Est indépendante des médiateurs chimiques","D":"Survient durant l'inflammation","E":"Empêche la migration leucocytaire","source":"","answer":"ABD","explanation":"La diapédèse permet aux leucocytes de quitter le vaisseau vers le foyer inflammatoire."},{"question":"Concernant le bourgeon charnu :","A":"Il est rose et granuleux","B":"Il contient des néovaisseaux","C":"Il est pauvre en fibroblastes","D":"Il participe à la cicatrisation","E":"Il peut devenir hyperplasique","source":"","answer":"ABDE","explanation":"Le bourgeon charnu est riche en fibroblastes et néovaisseaux et constitue la base de la réparation tissulaire."},{"question":"Pendant la maturation du bourgeon charnu :","A":"Le collagène III est remplacé par le collagène I","B":"La fibronectine augmente progressivement","C":"Les vaisseaux diminuent progressivement","D":"Les GAG se modifient","E":"Le tissu devient cicatriciel","source":"","answer":"ACDE","explanation":"La maturation aboutit à un tissu cicatriciel plus fibreux et moins vascularisé."},{"question":"La botryomycose :","A":"Est une anomalie de cicatrisation","B":"Correspond à un tissu de granulation exubérant","C":"Empêche la réépithélialisation","D":"Est fréquente chez la femme enceinte","E":"Est traitée chirurgicalement","source":"","answer":"ABCDE","explanation":"La botryomycose correspond à un bourgeon charnu excessif nécessitant souvent un traitement chirurgical."},{"question":"Les facteurs de croissance impliqués dans la cicatrisation peuvent être sécrétés par :","A":"Les macrophages","B":"Les fibroblastes","C":"Les plaquettes","D":"Les cellules endothéliales","E":"Les kératinocytes uniquement","source":"","answer":"ABCD","explanation":"Plusieurs cellules sécrètent les facteurs de croissance intervenant dans la réparation."},{"question":"La cicatrisation de première intention :","A":"Présente des berges rapprochées","B":"Produit une cicatrice discrète","C":"Correspond typiquement à une incision chirurgicale","D":"Présente une rétraction importante","E":"Nécessite un bourgeon charnu abondant","source":"","answer":"ABC","explanation":"La première intention correspond aux plaies propres avec peu de perte de substance."},{"question":"La cicatrisation de deuxième intention :","A":"Présente des berges éloignées","B":"Donne souvent une cicatrice inesthétique","C":"Présente un bourgeon charnu abondant","D":"Correspond à une plaie ouverte importante","E":"Est sans rétraction","source":"","answer":"ABCD","explanation":"Les pertes de substance importantes cicatrisent par deuxième intention avec forte rétraction."},{"question":"Concernant les chéloïdes :","A":"Dépassent les limites de la lésion initiale","B":"Peuvent récidiver après chirurgie","C":"Régressent toujours spontanément","D":"Sont favorisées chez les sujets noirs","E":"Correspondent à une cicatrisation excessive","source":"","answer":"ABDE","explanation":"Les chéloïdes persistent et débordent largement la lésion initiale."},{"question":"Les corps de Mallory :","A":"S'observent dans l'alcoolisme chronique","B":"Sont des inclusions hyalines","C":"Concernent les hépatocytes","D":"Sont visibles en microscopie optique","E":"Sont spécifiques de l'amylose","source":"","answer":"ABCD","explanation":"Les corps de Mallory sont typiques des hépatopathies alcooliques chroniques."},{"question":"La cellule de Virchow est caractéristique de :","A":"La sarcoïdose","B":"La lèpre lépromateuse","C":"La tuberculose","D":"La syphilis","E":"L'amylose","source":"","answer":"B","explanation":"La cellule de Virchow est un macrophage chargé de bacilles dans la lèpre lépromateuse."},{"question":"L'hémochromatose :","A":"Correspond à une surcharge en fer","B":"Peut être confirmée par la coloration de Perls","C":"Donne des amas d'hémosidérine","D":"Est une surcharge calcique","E":"Peut toucher le foie","source":"","answer":"ABCE","explanation":"L'hémochromatose est une surcharge ferrique systémique touchant notamment le foie."},{"question":"Les lésions précoces de l'athérosclérose selon l'AHA comprennent :","A":"La strie lipidique","B":"Le pré-athérome","C":"La plaque fibrocalcaire","D":"L'athérome","E":"Les macrophages spumeux sous-endothéliaux","source":"","answer":"ABDE","explanation":"Les lésions précoces incluent les macrophages spumeux, la strie lipidique, le pré-athérome et l'athérome. La plaque fibrocalcaire est une lésion tardive."},{"question":"Les complications possibles d'une plaque d'athérosclérose sont :","A":"Thrombose","B":"Embolie à distance","C":"Anévrysme","D":"Transformation cancéreuse","E":"Hémorragie intraplaque","source":"","answer":"ABCE","explanation":"Les plaques peuvent se compliquer de thrombose, embolie, anévrysme ou hémorragie mais ne se cancérisent pas."},{"question":"Concernant les tumeurs bénignes :","A":"Elles sont souvent encapsulées","B":"Elles récidivent fréquemment après exérèse complète","C":"Elles sont bien limitées","D":"Elles ressemblent histologiquement au tissu d'origine","E":"Leur développement est lent","source":"","answer":"ACDE","explanation":"Les tumeurs bénignes sont bien différenciées, bien limitées et évoluent lentement."},{"question":"Les caractéristiques des tumeurs malignes comprennent :","A":"Développement rapide","B":"Présence possible d'emboles vasculaires","C":"Nécrose et hémorragie","D":"Encapsulation constante","E":"Récidive fréquente","source":"","answer":"ABCE","explanation":"Les tumeurs malignes sont infiltrantes, récidivantes et souvent nécrotiques. Elles ne sont généralement pas encapsulées."},{"question":"Concernant les proto-oncogènes :","A":"Leur activation est dominante","B":"Une seule copie altérée peut suffire","C":"Ils sont des régulateurs positifs de prolifération","D":"Leur inactivation provoque toujours l'apoptose","E":"Ils peuvent être activés par amplification génique","source":"","answer":"ABCE","explanation":"Les proto-oncogènes stimulent la prolifération tumorale après activation."},{"question":"Parmi les mécanismes d'activation des proto-oncogènes :","A":"Mutation ponctuelle","B":"Translocation chromosomique","C":"Amplification génique","D":"Hypercalcémie","E":"Délétion mitochondriale uniquement","source":"","answer":"ABC","explanation":"Les principaux mécanismes sont mutation, translocation et amplification génique."},{"question":"Dans la classification TNM :","A":"T indique la taille tumorale","B":"N indique l'atteinte ganglionnaire","C":"M indique les métastases","D":"N indique la nécrose tumorale","E":"M indique la malignité histologique","source":"","answer":"ABC","explanation":"Le système TNM décrit taille tumorale, ganglions et métastases."},{"question":"Concernant la dissémination lymphatique des cancers :","A":"Elle est fréquente dans les carcinomes","B":"Elle est rare dans les sarcomes","C":"Un ganglion augmenté de taille est toujours métastatique","D":"Elle peut atteindre les ganglions régionaux","E":"Elle représente une voie majeure des carcinomes","source":"","answer":"ABDE","explanation":"Les carcinomes diffusent volontiers par voie lymphatique. Un ganglion hypertrophié n'est pas forcément métastatique."},{"question":"Les cancers ostéophiles sont :","A":"Cancer du sein","B":"Cancer de la prostate","C":"Cancer du rein","D":"Cancer thyroïdien","E":"Cancer gastrique","source":"","answer":"ABCD","explanation":"Les métastases osseuses sont fréquentes dans les cancers PPRTS : Poumon, Prostate, Rein, Thyroïde, Sein."},{"question":"Les métastases hématogènes :","A":"Sont fréquentes dans les sarcomes","B":"Peuvent survenir dans les mélanomes","C":"Dépendent du drainage veineux","D":"Sont impossibles dans les carcinomes","E":"Peuvent suivre une invasion lymphatique","source":"","answer":"ABCE","explanation":"La voie hématogène est surtout fréquente dans les sarcomes mais peut toucher d'autres cancers."},{"question":"Les marqueurs immunohistochimiques suivants sont corrects :","A":"Carcinome → cytokératine","B":"Sarcome → vimentine","C":"Lymphome → CD45","D":"Mélanome → HMB45","E":"Thyroïde → PSA","source":"","answer":"ABCD","explanation":"PSA est un marqueur prostatique et non thyroïdien."},{"question":"Le stroma tumoral :","A":"Est un tissu non tumoral","B":"Peut être riche en fibres collagènes","C":"Participe à la nutrition tumorale","D":"Est absent dans les carcinomes invasifs","E":"Peut influencer la réponse thérapeutique","source":"","answer":"ABCE","explanation":"Le stroma nourrit et soutient la tumeur et peut influencer l'immunothérapie."},{"question":"L'inflammation granulomateuse :","A":"Est riche en macrophages","B":"Peut être observée dans la tuberculose","C":"Peut être observée dans la sarcoïdose","D":"Est caractérisée par des PNN abondants","E":"Peut être observée dans une réaction à corps étranger","source":"","answer":"ABCE","explanation":"Les granulomes sont dominés par les macrophages et cellules géantes, pas par les PNN."},{"question":"Les cellules géantes de type Langhans :","A":"Ont des noyaux en couronne","B":"Peuvent se voir dans la tuberculose","C":"Sont typiques des granulomes à corps étranger","D":"Peuvent se voir dans la sarcoïdose","E":"Proviennent de la fusion macrophagique","source":"","answer":"ABDE","explanation":"Les cellules géantes de Langhans sont typiques des granulomes tuberculeux et sarcoïdiens."},{"question":"Concernant l'inflammation virale :","A":"Peut donner des inclusions nucléaires","B":"Peut donner des inclusions cytoplasmiques","C":"La dégénérescence cellulaire est impossible","D":"L'hépatite B peut donner un aspect en verre dépoli","E":"Le CMV peut augmenter la taille nucléaire","source":"","answer":"ABDE","explanation":"Les infections virales produisent souvent des inclusions et des modifications nucléaires caractéristiques."},{"question":"Concernant le kyste hydatique :","A":"Il est dû à Echinococcus granulosus","B":"Il contient un liquide clair","C":"Sa membrane adventice provient de l'hôte","D":"La membrane cuticulaire est acellulaire","E":"Il est toujours rempli de pus","source":"","answer":"ABCD","explanation":"Le kyste hydatique possède trois membranes et contient un liquide clair non purulent."},{"question":"Les colorations spéciales des mycoses comprennent :","A":"PAS","B":"Gomori Grocott","C":"Ziehl","D":"Rouge Congo","E":"Auramine","source":"","answer":"AB","explanation":"PAS et Gomori-Grocott sont utilisées pour les champignons."},{"question":"Concernant l'examen extemporané :","A":"Il est réalisé per-opératoire","B":"Le prélèvement doit être frais","C":"Il utilise une enceinte réfrigérée","D":"Le résultat peut être obtenu en moins de 30 minutes","E":"Il nécessite toujours un tissu fixé au formol avant examen","source":"","answer":"ABCD","explanation":"L'examen extemporané est rapide et réalisé sur tissu frais non fixé."},{"question":"La métaplasie :","A":"Est un processus adaptatif","B":"Peut être physiologique","C":"Peut évoluer vers un cancer","D":"Correspond toujours à une dysplasie","E":"Peut être provoquée par le tabac","source":"","answer":"ABCE","explanation":"La métaplasie est une transformation adaptative pouvant précéder une dysplasie."},{"question":"Concernant la dysplasie :","A":"Est confinée à l'épithélium","B":"Est une lésion précancéreuse","C":"Traverse obligatoirement la membrane basale","D":"Peut être de haut grade","E":"S'accompagne d'anomalies architecturales","source":"","answer":"ABDE","explanation":"La dysplasie reste limitée à l'épithélium sans franchir la membrane basale."},{"question":"Concernant le rôle de l'anatomopathologie :","A":"Poser un diagnostic lésionnel","B":"Donner des éléments pronostiques","C":"Prédire la réponse thérapeutique","D":"Établir un arbre généalogique","E":"Participer à la recherche scientifique","source":"","answer":"ABCE","explanation":"L'anatomopathologie sert au diagnostic, au pronostic et à la recherche, mais pas à établir des arbres généalogiques."},{"question":"L'étude cytopathologique :","A":"Étudie des cellules isolées","B":"Peut être obtenue par ponction à l'aiguille","C":"A pour but principal de diagnostiquer un carcinome infiltrant","D":"Peut être obtenue par raclage cellulaire","E":"Peut être réalisée sous contrôle radiologique","source":"","answer":"ABDE","explanation":"La cytologie étudie les cellules isolées mais ne suffit pas toujours pour confirmer l'infiltration."},{"question":"La qualité d'une biopsie dépend :","A":"Du nombre de prélèvements","B":"De la taille de la biopsie","C":"Du choix de la zone biopsiée","D":"De la fixation correcte du tissu","E":"Du groupe sanguin du patient","source":"","answer":"ABCD","explanation":"Une bonne biopsie nécessite un prélèvement représentatif et bien conservé."},{"question":"Le médecin préleveur doit :","A":"Orienter les prélèvements","B":"Étiqueter correctement les flacons","C":"Conserver les prélèvements dans le formol","D":"Assurer l'acheminement au laboratoire","E":"Réaliser obligatoirement l'analyse histologique","source":"","answer":"ABCD","explanation":"L'analyse histologique revient au pathologiste."},{"question":"Les étapes de l'examen anatomopathologique standard comprennent :","A":"Fixation","B":"Inclusion en paraffine","C":"Coupe au microtome","D":"Coloration","E":"Radiothérapie","source":"","answer":"ABCD","explanation":"La radiothérapie ne fait pas partie de la technique anatomopathologique."},{"question":"Une bonne fixation nécessite :","A":"Une immersion immédiate dans le fixateur","B":"Une quantité suffisante de fixateur","C":"Des récipients adaptés","D":"Une ischémie froide courte","E":"Un séchage du prélèvement avant fixation","source":"","answer":"ABCD","explanation":"Le prélèvement ne doit jamais sécher avant fixation."},{"question":"Concernant l'amylose :","A":"Les dépôts sont extracellulaires","B":"Les dépôts sont fibrillaires","C":"Tous les organes peuvent être atteints","D":"Le diagnostic histologique est possible","E":"Les dépôts sont toujours intracellulaires","source":"","answer":"ABCD","explanation":"Les dépôts amyloïdes sont extracellulaires et peuvent être systémiques."},{"question":"Les caractéristiques histologiques de l'amylose comprennent :","A":"Substance éosinophile amorphe","B":"Rouge Congo positif","C":"Biréfringence jaune-vert en lumière polarisée","D":"Infiltrat massif de PNN","E":"Architecture tissulaire souvent préservée","source":"","answer":"ABCE","explanation":"L'amylose se caractérise par des dépôts amorphes extracellulaires colorés au Rouge Congo."},{"question":"Concernant le composant P de l'amylose :","A":"Est commun à toutes les amyloses","B":"Est fibrillaire","C":"Représente environ 10 % des dépôts","D":"Est une glycoprotéine","E":"Participe à la stabilité des dépôts","source":"","answer":"ACDE","explanation":"Le composant P est non fibrillaire et stabilise les dépôts amyloïdes."},{"question":"Les protéines responsables d'amylose systémique peuvent être :","A":"AL","B":"AA","C":"PSA","D":"Chaînes légères d'immunoglobulines","E":"SAA","source":"","answer":"ABDE","explanation":"Les amyloses AL et AA sont les principales formes systémiques."},{"question":"Les manifestations digestives de l'amylose peuvent comprendre :","A":"Hépatosplénomégalie","B":"Macroglossie","C":"Diarrhée","D":"Syndrome de malabsorption","E":"Hyperthyroïdie constante","source":"","answer":"ABCD","explanation":"Les dépôts amyloïdes digestifs provoquent plusieurs manifestations digestives."},{"question":"Les amyloses généralisées acquises comprennent :","A":"Amylose AL","B":"Amylose secondaire inflammatoire AA","C":"Amylose cérébrale d'Alzheimer","D":"Amylose compliquant la polyarthrite rhumatoïde","E":"Amylose du myélome","source":"","answer":"ABDE","explanation":"L'amylose cérébrale est plutôt une forme localisée."},{"question":"Un compte rendu anatomopathologique doit contenir :","A":"Le type histologique tumoral","B":"La taille tumorale","C":"Les limites d'exérèse","D":"Le traitement exact à instaurer","E":"La présence d'emboles vasculaires","source":"","answer":"ABCE","explanation":"Le traitement n'est pas imposé par le compte rendu anatomopathologique."},{"question":"Les propriétés des cellules cancéreuses comprennent :","A":"Immortalité","B":"Perte de l'inhibition de contact","C":"Agressivité vis-à-vis des cellules normales","D":"Conservation obligatoire des fonctions normales","E":"Acquisition de nouveaux facteurs de croissance","source":"","answer":"ABCE","explanation":"Les cellules cancéreuses deviennent autonomes et agressives."},{"question":"Les mécanismes généraux de thrombose comprennent :","A":"Stase sanguine","B":"Hypercoagulabilité","C":"Lésion vasculaire","D":"Infection obligatoire","E":"Hypersensibilité retardée","source":"","answer":"ABC","explanation":"La triade de Virchow comprend stase, lésion endothéliale et hypercoagulabilité."},{"question":"Une thrombose peut évoluer vers :","A":"Organisation","B":"Embolie","C":"Reperméabilisation","D":"Calcification","E":"Transformation maligne","source":"","answer":"ABCD","explanation":"Les thromboses peuvent se réorganiser ou emboliser mais ne deviennent pas cancéreuses."},{"question":"Les calcifications dystrophiques :","A":"Surviennent avec calcémie normale","B":"Touchent les tissus lésés","C":"Peuvent être observées dans la tuberculose","D":"Touchent uniquement les tissus sains","E":"Peuvent atteindre les tissus nécrosés","source":"","answer":"ABCE","explanation":"Les calcifications dystrophiques se développent dans des tissus lésés malgré une calcémie normale."},{"question":"Les calcifications métastatiques :","A":"Sont associées à une hypercalcémie","B":"Peuvent se voir dans l'hyperparathyroïdie","C":"Touchent des tissus sains","D":"Sont toujours liées à une tuberculose","E":"Peuvent être dues à une hypervitaminose D","source":"","answer":"ABCE","explanation":"Elles résultent d'une augmentation pathologique de la calcémie."},{"question":"Les psammomes peuvent être observés dans :","A":"Les méningiomes","B":"Le carcinome papillaire thyroïdien","C":"Certains cancers ovariens","D":"Les sarcomes musculaires","E":"Les tumeurs papillaires","source":"","answer":"ABCE","explanation":"Les corps psammomateux sont des calcifications concentriques typiques de certaines tumeurs papillaires."},{"question":"Concernant l'hémosidérose :","A":"Elle donne une coloration rouille des viscères","B":"Peut être localisée","C":"Peut être généralisée","D":"Peut compliquer des hémorragies répétées","E":"Est toujours héréditaire","source":"","answer":"ABCD","explanation":"L'hémosidérose peut être locale ou systémique ; seule l'hémochromatose primitive est héréditaire."},{"question":"Concernant l'hémochromatose :","A":"Le foie peut devenir brun rouille","B":"La surcharge ferrique peut toucher les hépatocytes","C":"La réaction de Perls colore le fer en bleu","D":"Elle peut entraîner une fibrose hépatique","E":"Elle correspond à une surcharge en cuivre","source":"","answer":"ABCD","explanation":"L'hémochromatose est une surcharge en fer responsable de fibrose et de coloration brunâtre des organes."},{"question":"La cholestase :","A":"Peut donner une coloration verte du foie","B":"Est liée à la bilirubine","C":"Peut montrer des amas brun verdâtre à l'HE","D":"Donne toujours un foie atrophique","E":"Peut toucher les canalicules biliaires","source":"","answer":"ABCE","explanation":"La cholestase correspond à une accumulation de bile dans le foie."},{"question":"La stéatose hépatique :","A":"Correspond à une accumulation de triglycérides","B":"Donne un foie jaune pâle","C":"Peut être liée à l'alcool","D":"Peut être liée à l'obésité","E":"Correspond à une accumulation de glycogène","source":"","answer":"ABCD","explanation":"La stéatose correspond à une accumulation lipidique dans les hépatocytes."},{"question":"La stéatose macrovacuolaire :","A":"Refoule le noyau en périphérie","B":"Peut former des kystes graisseux","C":"Garde un noyau central","D":"Correspond à de grosses vacuoles lipidiques","E":"Est toujours toxique","source":"","answer":"ABD","explanation":"Les grosses vacuoles lipidiques déplacent le noyau vers la périphérie."},{"question":"La stéatose microvacuolaire :","A":"Possède souvent un noyau central","B":"Peut être difficile à voir","C":"Est observée dans certaines toxicités médicamenteuses","D":"Est toujours liée à l'alcoolisme chronique","E":"Peut survenir pendant la grossesse","source":"","answer":"ABCE","explanation":"La stéatose microvacuolaire peut être observée dans les atteintes toxiques et la grossesse."},{"question":"Les colorations des surcharges comprennent :","A":"Rouge huile pour la stéatose","B":"Noir Soudan pour la stéatose","C":"Rhodanine pour la maladie de Wilson","D":"Perls pour le fer","E":"Rouge Congo pour le glycogène","source":"","answer":"ABCD","explanation":"Le Rouge Congo sert à l'amylose et non au glycogène."},{"question":"Concernant la fixation anatomopathologique :","A":"Elle inhibe l'autolyse","B":"Le formol tamponné neutre est un bon fixateur","C":"Le ratio formol/tissu conseillé est de 10/1","D":"Une ischémie froide prolongée est idéale","E":"Elle conserve les structures tissulaires","source":"","answer":"ABCE","explanation":"Une longue ischémie froide altère les prélèvements."},{"question":"Les étapes de l'oncogenèse comprennent :","A":"Réactivation de la télomérase","B":"Inactivation de l'apoptose","C":"Capacité angiogénique","D":"Pouvoir invasif","E":"Diminution obligatoire du VEGF","source":"","answer":"ABCD","explanation":"Les cellules cancéreuses acquièrent des capacités favorisant croissance et dissémination."},{"question":"Les caractères nucléaires des cellules cancéreuses comprennent :","A":"Anisocaryose","B":"Hyperchromatisme","C":"Nucléoles volumineux","D":"Mitoses anormales","E":"Cytoplasme abondant constant","source":"","answer":"ABCD","explanation":"Les atypies nucléaires sont majeures dans les cancers."},{"question":"Concernant les cellules cancéreuses :","A":"Elles peuvent avoir un rapport nucléocytoplasmique élevé","B":"Elles peuvent présenter une membrane nucléaire irrégulière","C":"Elles présentent souvent des anomalies d'adhérence","D":"Elles gardent toujours une architecture normale","E":"Elles peuvent acquérir de nouveaux antigènes de surface","source":"","answer":"ABCE","explanation":"Les cellules cancéreuses perdent l'organisation normale et développent des anomalies membranaires."},{"question":"Les gènes impliqués dans la cancérogenèse comprennent :","A":"Proto-oncogènes","B":"Gènes suppresseurs de tumeur","C":"Gènes de réparation de l'ADN","D":"Gènes mitochondriaux uniquement","E":"Anti-oncogènes","source":"","answer":"ABCE","explanation":"Plusieurs catégories de gènes contrôlent la prolifération et la stabilité génétique."},{"question":"Les mécanismes de survie des cellules tumorales dans la circulation comprennent :","A":"Résistance mécanique","B":"Agrégation cellulaire","C":"Protection par les plaquettes","D":"Synthèse massive de stroma dans le sang","E":"Adhésion facilitée aux parois vasculaires","source":"","answer":"ABCE","explanation":"Les cellules tumorales utilisent les plaquettes pour survivre et métastaser."},{"question":"Les critères évoquant une amylose systémique comprennent :","A":"Dépôts extracellulaires amorphes","B":"Rouge Congo positif","C":"Biréfringence en lumière polarisée","D":"Destruction totale de l'architecture tissulaire","E":"Atteinte des membranes basales","source":"","answer":"ABCE","explanation":"Les dépôts amyloïdes respectent souvent l'architecture globale du tissu."},{"question":"Concernant les tumeurs germinales :","A":"Elles siègent surtout dans l'ovaire et le testicule","B":"Elles peuvent être médiastinales","C":"Elles peuvent contenir un contingent trophoblastique","D":"Le tératome mature en fait partie","E":"Elles sont toujours bénignes","source":"","answer":"ABCD","explanation":"Les tumeurs germinales peuvent être bénignes ou malignes."},{"question":"Le polynucléaire neutrophile (PNN) :","A":"Est caractéristique de l'inflammation aiguë","B":"Est l'une des premières cellules recrutées","C":"Possède une activité phagocytaire","D":"Joue un rôle bactéricide","E":"Est le principal acteur de la fibrose","source":"","answer":"ABCD","explanation":"Les fibroblastes sont les principaux acteurs de la fibrose."},{"question":"Le polynucléaire éosinophile (PNE) :","A":"Évoque une allergie","B":"Peut intervenir dans les parasitoses","C":"Complète l'action des PNN","D":"Est absent de toute inflammation chronique","E":"Possède des protéines enzymatiques spécifiques","source":"","answer":"ABCE","explanation":"Les PNE sont fréquents dans les allergies et parasitoses."},{"question":"Les macrophages :","A":"Jouent un rôle majeur dans l'inflammation chronique","B":"Présentent les antigènes aux cellules immunitaires","C":"Peuvent garder une mémoire antigénique","D":"Donnent naissance aux cellules géantes multinucléées","E":"Meurent toujours après phagocytose","source":"","answer":"ABCD","explanation":"Contrairement aux PNN, les macrophages survivent souvent après phagocytose."},{"question":"Les plaquettes participent à :","A":"L'hémostase","B":"La libération de prostaglandines","C":"La libération de thromboxanes","D":"La protéolyse de la matrice extracellulaire","E":"La production d'anticorps","source":"","answer":"ABCD","explanation":"Les plaquettes participent à l'inflammation et à l'hémostase mais ne produisent pas d'anticorps."},{"question":"La chronologie cellulaire de l'inflammation est généralement :","A":"PNN puis macrophages","B":"Fibroblastes en premier","C":"Fibrose en phase tardive","D":"Lymphocytes après les PNN","E":"Histamine avant le complément","source":"","answer":"ACDE","explanation":"Les PNN arrivent d'abord puis les cellules mononucléées et enfin les fibroblastes."},{"question":"Les phases de l'inflammation comprennent :","A":"Réaction vasculo-sanguine","B":"Détersion","C":"Réparation tissulaire","D":"Calcification obligatoire","E":"Réaction cellulaire","source":"","answer":"ABCE","explanation":"L'inflammation évolue par phases vasculaire, cellulaire puis réparatrice."},{"question":"La congestion active :","A":"Correspond à une hyperhémie","B":"Résulte d'une vasodilatation artériolaire","C":"Augmente le débit sanguin","D":"Correspond à une stase veineuse passive","E":"Est contrôlée par des médiateurs chimiques","source":"","answer":"ABCE","explanation":"La congestion active est liée à une vasodilatation augmentant l'apport sanguin local."},{"question":"L'œdème inflammatoire :","A":"Est riche en protéines","B":"Résulte d'une augmentation de perméabilité vasculaire","C":"Favorise la diapédèse leucocytaire","D":"Dilue les agents pathogènes","E":"Est pauvre en médiateurs chimiques","source":"","answer":"ABCD","explanation":"L'exsudat inflammatoire est riche en protéines et médiateurs."},{"question":"La détersion :","A":"Élimine les tissus nécrosés","B":"Prépare la réparation tissulaire","C":"Peut être spontanée","D":"Peut être chirurgicale","E":"Empêche toute inflammation chronique","source":"","answer":"ABCD","explanation":"Une détersion incomplète peut conduire à une inflammation chronique."},{"question":"Les formes d'inflammation aiguë comprennent :","A":"Congestive","B":"Purulente","C":"Fibrineuse","D":"Nécrosante","E":"Amyloïde","source":"","answer":"ABCD","explanation":"L'amylose n'est pas une forme d'inflammation aiguë."},{"question":"L'inflammation fibrineuse :","A":"Contient de la fibrine coagulée","B":"Peut former des fausses membranes","C":"Peut être observée dans la diphtérie","D":"Est toujours purulente","E":"Peut toucher les séreuses","source":"","answer":"ABCE","explanation":"L'inflammation fibrineuse se caractérise par un exsudat riche en fibrine."},{"question":"L'évolution possible d'une inflammation aiguë comprend :","A":"Résolution complète","B":"Suppuration","C":"Fibrose","D":"Inflammation chronique","E":"Transformation tumorale immédiate","source":"","answer":"ABCD","explanation":"L'évolution dépend de l'intensité des lésions et de la persistance de l'agent causal."},{"question":"La congestion passive :","A":"Est liée à un ralentissement veineux","B":"Correspond à une dilatation passive des veines","C":"Peut entraîner une hypoxie tissulaire","D":"Est identique à la congestion active","E":"Peut s'observer dans l'insuffisance cardiaque","source":"","answer":"ABCE","explanation":"La congestion passive résulte d'une mauvaise évacuation veineuse."},{"question":"L'inflammation chronique :","A":"S'accompagne souvent de fibrose","B":"Comporte des cellules mononucléées","C":"Peut succéder à une inflammation aiguë","D":"Peut débuter de manière insidieuse","E":"Est toujours d'origine bactérienne","source":"","answer":"ABCD","explanation":"L'inflammation chronique peut avoir plusieurs causes non bactériennes."},{"question":"Les manifestations locales de l'inflammation comprennent :","A":"Rougeur","B":"Chaleur","C":"Douleur","D":"Tumeur","E":"Hyperthyroïdie","source":"","answer":"ABCD","explanation":"Les signes cardinaux sont douleur, rougeur, chaleur, tumeur et perte de fonction."},{"question":"Les manifestations systémiques de l'inflammation comprennent :","A":"Fièvre","B":"Asthénie","C":"Leucocytose","D":"Élévation de la CRP","E":"Hypercalcémie constante","source":"","answer":"ABCD","explanation":"Les marqueurs inflammatoires augmentent fréquemment durant l'inflammation systémique."},{"question":"Le frottis cervico-utérin :","A":"Sert au dépistage du cancer","B":"Peut rechercher des infections virales","C":"Peut être réalisé en couche mince","D":"Doit être fixé au formol","E":"Peut être étalé sur lame","source":"","answer":"ABCE","explanation":"Le FCV ne doit pas être fixé au formol."},{"question":"Concernant l'immunohistochimie :","A":"Repose sur une réaction antigène-anticorps","B":"Peut avoir un intérêt pronostique","C":"Aide au diagnostic des tumeurs indifférenciées","D":"Recherche des antigènes membranaires ou nucléaires","E":"Nécessite toujours du tissu congelé","source":"","answer":"ABCD","explanation":"L'immunohistochimie peut être réalisée sur tissu fixé et inclus en paraffine."},{"question":"Le néoplasme :","A":"Est un terme tumoral","B":"Correspond à une prolifération autonome","C":"Peut déformer un organe","D":"Est synonyme obligatoire de cancer malin","E":"Peut être bénin ou malin","source":"","answer":"ABCE","explanation":"Un néoplasme peut être bénin ou malin."},{"question":"Les facteurs angiogéniques tumoraux comprennent :","A":"VEGF","B":"Angiopoïétines","C":"FGF","D":"Endostatine","E":"Tie 1 et Tie 2","source":"","answer":"ABCE","explanation":"L'endostatine est un facteur anti-angiogénique."},{"question":"Les facteurs anti-angiogéniques comprennent :","A":"Thrombospondine","B":"Angiostatine","C":"Endostatine","D":"VEGF","E":"FGF","source":"","answer":"ABC","explanation":"VEGF et FGF stimulent l'angiogenèse."},{"question":"Concernant la vascularisation tumorale :","A":"Elle est essentiellement capillaire","B":"Peut présenter des effets shunt","C":"Peut réduire l'efficacité de la chimiothérapie","D":"Est toujours parfaitement organisée","E":"Se développe avec la tumeur","source":"","answer":"ABCE","explanation":"Les néovaisseaux tumoraux sont souvent anarchiques et inefficaces."},{"question":"La classification des tumeurs prend en compte :","A":"Le tissu d'origine","B":"Le type histologique","C":"Le degré de malignité","D":"L'aspect macroscopique","E":"Le groupe sanguin du patient","source":"","answer":"ABCD","explanation":"Les classifications tumorales reposent sur des critères anatomopathologiques."},{"question":"Les lésions d'athérosclérose :","A":"Touchent surtout les grosses artères","B":"Prédominent aux bifurcations","C":"Peuvent toucher l'aorte abdominale","D":"Sont rares dans les zones de turbulence","E":"Peuvent atteindre les artères des membres inférieurs","source":"","answer":"ABCE","explanation":"Les zones de turbulence favorisent l'athérosclérose."},{"question":"Les facteurs de risque de l'athérosclérose comprennent :","A":"Tabac","B":"Diabète","C":"HTA","D":"Obésité","E":"Hyperlipoprotéinémies","source":"","answer":"ABCDE","explanation":"Tous ces facteurs favorisent la formation des plaques athéromateuses."},{"question":"Les étapes de la dissémination métastatique comprennent :","A":"Détachement cellulaire","B":"Intravasation","C":"Survie dans la circulation","D":"Extravasation","E":"Nécrose tumorale obligatoire","source":"","answer":"ABCD","explanation":"Les métastases nécessitent plusieurs étapes successives permettant la colonisation d'un nouvel organe."},{"question":"Les étapes du FCV conventionnel comprennent :","A":"Étalement des cellules sur lame","B":"Fixation immédiate","C":"Coloration au Papanicolaou","D":"Interprétation cytologique","E":"Éjection de la cytobrosse dans un liquide de transport","source":"","answer":"ABCD","explanation":"L'éjection de la cytobrosse dans un liquide correspond à la technique monocouche."},{"question":"La technique monocouche du FCV :","A":"N'utilise pas d'étalement direct sur lame","B":"Utilise un milieu de transport","C":"Permet une coloration au Papanicolaou","D":"Nécessite une fixation immédiate","E":"Est impossible en dépistage","source":"","answer":"ABCD","explanation":"La technique monocouche est largement utilisée en dépistage moderne."},{"question":"Une lésion compliquée d'athérosclérose coronaire peut provoquer :","A":"IDM","B":"Angor","C":"Mort subite","D":"Thrombose coronaire","E":"Cirrhose hépatique","source":"","answer":"ABCD","explanation":"Les complications coronaires de l'athérosclérose peuvent être graves et aiguës."},{"question":"Les médiateurs chimiques de l'inflammation :","A":"Participent au chimiotactisme","B":"Modifient la perméabilité vasculaire","C":"Peuvent induire des lésions tissulaires","D":"Sont tous cellulaires","E":"Peuvent être plasmatiques","source":"","answer":"ABCE","explanation":"Les médiateurs peuvent être d'origine cellulaire ou plasmatique."},{"question":"Le facteur XII de Hageman :","A":"Intervient dans la coagulation","B":"Active le complément","C":"Active les kinines","D":"Est un médiateur cellulaire pur","E":"A un rôle central dans l'inflammation","source":"","answer":"ABCE","explanation":"Le facteur XII participe à plusieurs cascades inflammatoires plasmatiques."},{"question":"Le complément :","A":"Favorise le chimiotactisme des PNN","B":"Participe à l'opsonisation","C":"Peut favoriser la libération d'histamine","D":"Est produit uniquement par les lymphocytes","E":"Participe à la défense immunitaire","source":"","answer":"ABCE","explanation":"Le complément joue un rôle essentiel dans l'immunité innée."},{"question":"Les kinines :","A":"Sont de puissants vasodilatateurs","B":"Participent à la douleur inflammatoire","C":"Font partie des médiateurs plasmatiques","D":"Inhibent totalement la diapédèse","E":"Participent à l'inflammation aiguë","source":"","answer":"ABCE","explanation":"Les kinines favorisent vasodilatation et douleur."},{"question":"Les médiateurs cellulaires de l'inflammation comprennent :","A":"Histamine","B":"Prostaglandines","C":"Cytokines","D":"Leucotriènes","E":"Hémoglobine","source":"","answer":"ABCD","explanation":"L'hémoglobine n'est pas un médiateur inflammatoire."},{"question":"L'histamine :","A":"Est l'un des premiers médiateurs libérés","B":"Provoque une vasodilatation","C":"Augmente la perméabilité vasculaire","D":"Est stockée notamment dans les basophiles","E":"Inhibe totalement l'œdème inflammatoire","source":"","answer":"ABCD","explanation":"L'histamine favorise rapidement les phénomènes vasculaires inflammatoires."},{"question":"Les leucotriènes :","A":"Dérivent de l'acide arachidonique","B":"Participent à l'inflammation","C":"Peuvent attirer les leucocytes","D":"Sont des médiateurs cellulaires","E":"Sont des protéines nucléaires","source":"","answer":"ABCD","explanation":"Les leucotriènes sont des médiateurs lipidiques inflammatoires."},{"question":"La matrice extracellulaire comprend :","A":"Les membranes basales","B":"La matrice interstitielle","C":"Les fibres collagènes","D":"Les fibroblastes uniquement","E":"Des glycoprotéines","source":"","answer":"ABCE","explanation":"La MEC est composée de fibres et de substances fondamentales extracellulaires."},{"question":"Les cellules cancéreuses différenciées :","A":"Peuvent conserver certaines fonctions normales","B":"Sont toujours totalement anaplasiques","C":"Peuvent produire des sécrétions spécifiques","D":"Peuvent ressembler au tissu d'origine","E":"Sont toujours indifférenciées","source":"","answer":"ACD","explanation":"Une tumeur différenciée garde certains caractères du tissu d'origine."},{"question":"L'anaplasie correspond :","A":"À une indifférenciation cellulaire","B":"À une perte des caractères spécialisés","C":"À un signe de malignité","D":"À une différenciation parfaite","E":"À une atypie importante","source":"","answer":"ABCE","explanation":"L'anaplasie traduit une agressivité tumorale élevée."},{"question":"Les métastases :","A":"Peuvent être révélatrices d'un cancer","B":"Peuvent atteindre le foie","C":"Sont fréquentes dans les ganglions lymphatiques","D":"Caractérisent les cancers in situ","E":"Peuvent être hématogènes ou lymphatiques","source":"","answer":"ABCE","explanation":"Les cancers in situ ne donnent pas de métastases car ils ne franchissent pas la membrane basale."},{"question":"Le carcinome épidermoïde :","A":"Est une tumeur épithéliale","B":"Peut donner des métastases","C":"Peut diffuser par voie lymphatique","D":"Peut diffuser par voie hématogène","E":"Est une tumeur mélanique","source":"","answer":"ABCD","explanation":"Le mélanome dérive du tissu mélanique et non de l'épithélium malpighien."},{"question":"Les cellules tumorales peuvent acquérir :","A":"Des facteurs autocrines de croissance","B":"Une immortalité cellulaire","C":"Une perte d'adhérence intercellulaire","D":"Une inhibition de contact renforcée","E":"De nouveaux antigènes de surface","source":"","answer":"ABCE","explanation":"Les cellules cancéreuses perdent l'inhibition de contact."},{"question":"Les lésions cellulaires réversibles peuvent comporter :","A":"Œdème cellulaire","B":"Stéatose","C":"Altérations membranaires modérées","D":"Rupture nucléaire complète","E":"Troubles mitochondriaux","source":"","answer":"ABCE","explanation":"La rupture nucléaire complète signe plutôt une nécrose irréversible."},{"question":"La nécrose :","A":"Correspond à une mort cellulaire","B":"Peut être accompagnée d'inflammation","C":"S'accompagne souvent de rupture membranaire","D":"Est toujours physiologique","E":"Peut être ischémique","source":"","answer":"ABCE","explanation":"La nécrose est pathologique contrairement à l'apoptose physiologique."},{"question":"L'apoptose :","A":"Est une mort cellulaire programmée","B":"Peut être physiologique","C":"Peut être pathologique","D":"Déclenche toujours une forte inflammation","E":"Respecte généralement la membrane cellulaire","source":"","answer":"ABCE","explanation":"L'apoptose est une mort propre avec peu d'inflammation."},{"question":"Les lésions élémentaires de l'athérosclérose comprennent :","A":"Stries lipidiques","B":"Athérome","C":"Plaques fibreuses","D":"Plaques fibrocalcaires","E":"Granulomes tuberculeux","source":"","answer":"ABCD","explanation":"Les granulomes tuberculeux n'ont aucun lien avec l'athérosclérose."},{"question":"Les lésions irréversibles cellulaires comprennent :","A":"Rupture des membranes cellulaires","B":"Altérations mitochondriales sévères","C":"Caryolyse","D":"Caryorrhexie","E":"Retour complet à la normale immédiat","source":"","answer":"ABCD","explanation":"Les lésions irréversibles aboutissent à la mort cellulaire et aux altérations nucléaires."},{"question":"Les modifications nucléaires observées dans la nécrose comprennent :","A":"Pycnose","B":"Caryorrhexie","C":"Caryolyse","D":"Hyperplasie nucléaire physiologique","E":"Fragmentation nucléaire","source":"","answer":"ABCE","explanation":"Les altérations nucléaires typiques de la nécrose sont pycnose, caryorrhexie et caryolyse."},{"question":"La nécrose de coagulation :","A":"Est fréquente dans les infarctus","B":"Respecte temporairement l'architecture tissulaire","C":"Est typique du cerveau","D":"Est souvent liée à l'ischémie","E":"Conserve les contours cellulaires un certain temps","source":"","answer":"ABDE","explanation":"La nécrose cérébrale est plutôt une nécrose de liquéfaction."},{"question":"La nécrose de liquéfaction :","A":"Peut être observée dans les abcès","B":"Est fréquente dans le cerveau","C":"Résulte souvent d'une digestion enzymatique","D":"Conserve longtemps l'architecture normale","E":"Produit un matériel liquide","source":"","answer":"ABCE","explanation":"La liquéfaction détruit rapidement l'architecture tissulaire."},{"question":"La nécrose caséeuse :","A":"Est fréquente dans la tuberculose","B":"Donne un aspect blanc friable","C":"Associe nécrose et granulome","D":"Est riche en architecture conservée","E":"Peut être observée dans certaines mycoses","source":"","answer":"ABCE","explanation":"La nécrose caséeuse détruit totalement l'architecture tissulaire."},{"question":"La gangrène :","A":"Correspond à une nécrose extensive","B":"Peut être sèche","C":"Peut être humide","D":"Peut compliquer une ischémie","E":"Est toujours aseptique","source":"","answer":"ABCD","explanation":"La gangrène humide est souvent infectée."},{"question":"L'infarctus :","A":"Résulte souvent d'une occlusion vasculaire","B":"Peut être blanc ou rouge","C":"Peut être secondaire à une thrombose","D":"Est toujours infectieux","E":"Peut évoluer vers une cicatrice fibreuse","source":"","answer":"ABCE","explanation":"L'infarctus est généralement ischémique et non infectieux."},{"question":"Les causes d'hyperémie active comprennent :","A":"Inflammation","B":"Exercice musculaire","C":"Vasodilatation artériolaire","D":"Obstruction veineuse","E":"Médiateurs chimiques","source":"","answer":"ABCE","explanation":"L'obstruction veineuse provoque plutôt une congestion passive."},{"question":"Les embolies peuvent être :","A":"Thrombotiques","B":"Gazeuses","C":"Graisseuses","D":"Amniotiques","E":"Exclusivement bactériennes","source":"","answer":"ABCD","explanation":"Les embolies ont plusieurs origines possibles."},{"question":"L'embolie pulmonaire :","A":"Provient souvent d'une thrombose veineuse profonde","B":"Peut être mortelle","C":"Peut entraîner un infarctus pulmonaire","D":"Touche obligatoirement les coronaires","E":"Peut être asymptomatique","source":"","answer":"ABCE","explanation":"Les embolies pulmonaires proviennent surtout des veines des membres inférieurs."},{"question":"L'œdème :","A":"Correspond à une accumulation liquidienne interstitielle","B":"Peut être inflammatoire","C":"Peut être lié à une insuffisance cardiaque","D":"Peut résulter d'une hypoalbuminémie","E":"Correspond toujours à un exsudat riche en protéines","source":"","answer":"ABCD","explanation":"Les transsudats sont pauvres en protéines."},{"question":"Les transsudats :","A":"Sont pauvres en protéines","B":"Résultent souvent de troubles hémodynamiques","C":"Sont typiques des inflammations aiguës","D":"Peuvent être observés dans l'insuffisance cardiaque","E":"Sont liés à une augmentation majeure de perméabilité vasculaire","source":"","answer":"ABD","explanation":"Les exsudats inflammatoires sont riches en protéines."},{"question":"Les exsudats inflammatoires :","A":"Sont riches en protéines","B":"Contiennent souvent des cellules inflammatoires","C":"Résultent d'une augmentation de perméabilité vasculaire","D":"Sont identiques aux transsudats","E":"Peuvent être fibrineux","source":"","answer":"ABCE","explanation":"Les exsudats sont caractéristiques de l'inflammation."},{"question":"Les facteurs favorisant la thrombose comprennent :","A":"Immobilisation prolongée","B":"Lésion endothéliale","C":"Hypercoagulabilité","D":"Stase sanguine","E":"Hyperthyroïdie isolée obligatoire","source":"","answer":"ABCD","explanation":"Ces éléments constituent la triade de Virchow."},{"question":"Les tumeurs bénignes mésenchymateuses comprennent :","A":"Lipome","B":"Fibrome","C":"Chondrome","D":"Adénocarcinome","E":"Ostéome","source":"","answer":"ABCE","explanation":"L'adénocarcinome est une tumeur épithéliale maligne."},{"question":"Les sarcomes :","A":"Sont des tumeurs malignes mésenchymateuses","B":"Diffusent volontiers par voie hématogène","C":"Peuvent donner des métastases pulmonaires","D":"Sont toujours encapsulés","E":"Peuvent être ostéogéniques","source":"","answer":"ABCE","explanation":"Les sarcomes sont infiltrants et rarement encapsulés."},{"question":"Les carcinomes :","A":"Sont des tumeurs épithéliales malignes","B":"Peuvent diffuser par voie lymphatique","C":"Peuvent être épidermoïdes","D":"Peuvent être adénocarcinomes","E":"Sont des tumeurs conjonctives bénignes","source":"","answer":"ABCD","explanation":"Les carcinomes dérivent de l'épithélium."},{"question":"Les signes histologiques de malignité comprennent :","A":"Pléomorphisme","B":"Hyperchromatisme","C":"Mitoses atypiques","D":"Invasion tissulaire","E":"Encapsulation régulière constante","source":"","answer":"ABCD","explanation":"Une tumeur encapsulée évoque plutôt la bénignité."},{"question":"Les cancers in situ :","A":"Restent limités à l'épithélium","B":"Respectent la membrane basale","C":"Peuvent évoluer vers un cancer infiltrant","D":"Donnent des métastases à distance","E":"Sont des lésions précancéreuses majeures","source":"","answer":"ABCE","explanation":"Sans franchissement de la membrane basale, il n'y a pas de métastase."},{"question":"Les facteurs favorisant la cancérogenèse comprennent :","A":"Tabac","B":"Rayonnements ionisants","C":"Certains virus","D":"Produits chimiques carcinogènes","E":"Réparation ADN parfaite obligatoire","source":"","answer":"ABCD","explanation":"Les anomalies de réparation de l'ADN favorisent au contraire la cancérogenèse."},{"question":"Les virus oncogènes comprennent :","A":"HPV","B":"EBV","C":"HBV","D":"HCV","E":"Streptococcus pyogenes","source":"","answer":"ABCD","explanation":"Plusieurs virus sont impliqués dans la cancérogenèse humaine, contrairement aux bactéries classiques comme Streptococcus pyogenes."},{"question":"Le HPV est associé à :","A":"Cancer du col utérin","B":"Condylomes","C":"Dysplasies cervicales","D":"Carcinome épidermoïde","E":"Hépatocarcinome","source":"","answer":"ABCD","explanation":"Les HPV oncogènes jouent un rôle majeur dans les lésions cervicales et certains carcinomes épidermoïdes."},{"question":"Les caractéristiques d'une tumeur bénigne comprennent :","A":"Croissance lente","B":"Bonne différenciation","C":"Absence habituelle de métastases","D":"Infiltration diffuse obligatoire","E":"Limites souvent nettes","source":"","answer":"ABCE","explanation":"Les tumeurs bénignes sont généralement bien limitées et non infiltrantes."},{"question":"Les cellules tumorales peuvent présenter :","A":"Anisocytose","B":"Anisocaryose","C":"Hyperchromatisme","D":"Mitoses atypiques","E":"Organisation tissulaire normale constante","source":"","answer":"ABCD","explanation":"Les atypies cellulaires sont typiques des cellules malignes."},{"question":"Les emboles tumoraux :","A":"Facilitent les métastases","B":"Peuvent être observés dans les vaisseaux lymphatiques","C":"Peuvent être observés dans les vaisseaux sanguins","D":"Signent une invasion tumorale","E":"Sont impossibles dans les carcinomes","source":"","answer":"ABCD","explanation":"Les emboles vasculaires sont fréquents dans les cancers invasifs."},{"question":"Les tumeurs peuvent être classées selon :","A":"Le tissu d'origine","B":"Le comportement biologique","C":"Le degré de différenciation","D":"Les caractéristiques histologiques","E":"La couleur des yeux du patient","source":"","answer":"ABCD","explanation":"La classification tumorale repose sur des critères anatomopathologiques."},{"question":"Les caractéristiques du granulome inflammatoire comprennent :","A":"Présence de macrophages activés","B":"Présence de cellules géantes","C":"Présence possible de lymphocytes","D":"Présence obligatoire de nécrose","E":"Organisation focale de l'inflammation","source":"","answer":"ABCE","explanation":"Tous les granulomes ne présentent pas de nécrose."},{"question":"Les cellules géantes multinucléées :","A":"Proviennent souvent de macrophages fusionnés","B":"Peuvent être observées dans la tuberculose","C":"Peuvent être observées autour de corps étrangers","D":"Sont spécifiques du cancer","E":"Participent aux granulomes","source":"","answer":"ABCE","explanation":"Les cellules géantes sont fréquentes dans les inflammations granulomateuses."},{"question":"Les signes morphologiques d'apoptose comprennent :","A":"Condensation de la chromatine","B":"Fragmentation nucléaire","C":"Formation de corps apoptotiques","D":"Rupture inflammatoire massive des membranes","E":"Phagocytose rapide des débris","source":"","answer":"ABCE","explanation":"L'apoptose est une mort cellulaire discrète sans inflammation importante."},{"question":"Les causes possibles d'apoptose comprennent :","A":"Privation de facteurs de croissance","B":"Lésions de l'ADN","C":"Action des lymphocytes T cytotoxiques","D":"Développement embryonnaire normal","E":"Ischémie sévère prolongée uniquement","source":"","answer":"ABCD","explanation":"L'apoptose peut être physiologique ou pathologique."},{"question":"Les facteurs favorisant l'œdème comprennent :","A":"Augmentation de pression hydrostatique","B":"Diminution de pression oncotique","C":"Obstruction lymphatique","D":"Augmentation de perméabilité vasculaire","E":"Polyglobulie isolée obligatoire","source":"","answer":"ABCD","explanation":"Plusieurs mécanismes peuvent provoquer un œdème."},{"question":"Les conséquences possibles de l'inflammation chronique comprennent :","A":"Fibrose","B":"Destruction tissulaire","C":"Néovascularisation","D":"Altération fonctionnelle d'organe","E":"Régénération parfaite obligatoire","source":"","answer":"ABCD","explanation":"L'inflammation chronique peut entraîner des séquelles permanentes."},{"question":"Les fibroblastes :","A":"Participent à la cicatrisation","B":"Produisent du collagène","C":"Interviennent tardivement dans l'inflammation","D":"Participent à la fibrose","E":"Sont les premières cellules recrutées lors de l'inflammation aiguë","source":"","answer":"ABCD","explanation":"Les PNN arrivent avant les fibroblastes."},{"question":"Les polynucléaires neutrophiles :","A":"Sont attirés par chimiotactisme","B":"Possèdent des enzymes lysosomiales","C":"Participent à la destruction bactérienne","D":"Peuvent former du pus","E":"Persistant des années dans les granulomes chroniques","source":"","answer":"ABCD","explanation":"Les granulomes chroniques sont dominés par macrophages et lymphocytes."},{"question":"Le pus :","A":"Contient des PNN","B":"Peut contenir des débris cellulaires","C":"Est fréquent dans les infections bactériennes pyogènes","D":"Est caractéristique de l'inflammation purulente","E":"Est composé uniquement de fibrine","source":"","answer":"ABCD","explanation":"Le pus est riche en neutrophiles et débris nécrotiques."},{"question":"Les abcès :","A":"Correspondent à des collections purulentes","B":"Peuvent être entourés d'une coque inflammatoire","C":"Sont fréquents dans les infections bactériennes","D":"Peuvent nécessiter un drainage","E":"Sont toujours stériles","source":"","answer":"ABCD","explanation":"Les abcès sont souvent infectieux et nécessitent parfois une évacuation."},{"question":"Les signes macroscopiques d'une tumeur maligne comprennent :","A":"Limites irrégulières","B":"Infiltration des tissus voisins","C":"Zones de nécrose","D":"Hémorragies possibles","E":"Capsule épaisse constante","source":"","answer":"ABCD","explanation":"Les cancers infiltrants sont rarement encapsulés."},{"question":"Les cellules spumeuses :","A":"Sont riches en lipides","B":"Participent aux lésions athéroscléreuses","C":"Dérivent souvent des macrophages","D":"Peuvent former des stries lipidiques","E":"Sont des cellules musculaires lisses uniquement","source":"","answer":"ABCD","explanation":"Les macrophages spumeux jouent un rôle majeur dans l'athérosclérose."},{"question":"Les complications des thromboses comprennent :","A":"Embolie","B":"Organisation","C":"Recanalisation","D":"Calcification","E":"Transformation en adénocarcinome","source":"","answer":"ABCD","explanation":"Une thrombose ne devient pas cancéreuse."},{"question":"Les caractéristiques des cancers infiltrants comprennent :","A":"Franchissement de la membrane basale","B":"Invasion des tissus voisins","C":"Possibilité de métastases","D":"Emboles vasculaires possibles","E":"Limitation stricte à l'épithélium","source":"","answer":"ABCD","explanation":"Les cancers infiltrants envahissent les tissus et peuvent métastaser."}];
+
+// State
+let mode = 'exam';
+let nQuestions = 20;
+let queue = [];
+let current = 0;
+let selected = new Set();
+let validated = false;
+let score = 0;
+let totalAnswered = 0;
+let sessionQueue = [];
+
+function selectMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-opt').forEach(el => el.classList.remove('active'));
+  document.querySelector(`[data-mode="${m}"]`).classList.add('active');
+}
+
+function updateN(val) {
+  nQuestions = parseInt(val);
+  document.getElementById('n-display').textContent = val;
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  const doShuffle = document.getElementById('shuffle-chk').checked;
+  let pool = doShuffle ? shuffle(CARDS) : [...CARDS];
+  sessionQueue = pool.slice(0, nQuestions);
+  current = 0; score = 0; totalAnswered = 0;
+  document.getElementById('mode-screen').classList.add('hidden');
+  document.getElementById('quiz-screen').classList.remove('hidden');
+  document.getElementById('hdr-score').textContent = '–';
+  renderQuestion();
+}
+
+function restartSame() {
+  document.getElementById('results-screen').classList.add('hidden');
+  startQuiz();
+}
+
+function goHome() {
+  document.getElementById('quiz-screen').classList.add('hidden');
+  document.getElementById('results-screen').classList.add('hidden');
+  document.getElementById('mode-screen').classList.remove('hidden');
+  document.getElementById('hdr-score').textContent = '–';
+}
+
+function renderQuestion() {
+  const total = sessionQueue.length;
+  const pct = Math.round((current / total) * 100);
+  document.getElementById('prog-label').textContent = `Question ${current + 1} / ${total}`;
+  document.getElementById('prog-pct').textContent = `${pct}%`;
+  document.getElementById('prog-fill').style.width = `${pct}%`;
+
+  const card = sessionQueue[current];
+  const idx = CARDS.indexOf(card);
+  document.getElementById('card-num').textContent = `QCM ${String(idx + 1).padStart('0', 3).padStart(3, '0')}`;
+  document.getElementById('question-text').textContent = card.question;
+
+  selected = new Set();
+  validated = false;
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  ['A','B','C','D','E'].forEach(letter => {
+    const text = card[letter];
+    if (!text) return;
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.dataset.letter = letter;
+    btn.innerHTML = `<span class="option-letter">${letter}</span><span>${text}</span>`;
+    btn.onclick = () => toggleOption(letter, btn);
+    grid.appendChild(btn);
+  });
+
+  document.getElementById('explanation').classList.add('hidden');
+  document.getElementById('explanation').innerHTML = '';
+  document.getElementById('btn-validate').classList.remove('hidden');
+  document.getElementById('btn-validate').disabled = true;
+  document.getElementById('btn-next').classList.add('hidden');
+
+  if (mode === 'flash') {
+    document.getElementById('btn-validate').textContent = 'Voir la réponse';
+    document.getElementById('btn-validate').disabled = false;
+  } else {
+    document.getElementById('btn-validate').textContent = 'Valider';
+  }
+}
+
+function toggleOption(letter, btn) {
+  if (validated) return;
+  if (selected.has(letter)) {
+    selected.delete(letter);
+    btn.classList.remove('selected');
+  } else {
+    selected.add(letter);
+    btn.classList.add('selected');
+  }
+  if (mode === 'exam') {
+    document.getElementById('btn-validate').disabled = selected.size === 0;
+  }
+}
+
+function validate() {
+  validated = true;
+  const card = sessionQueue[current];
+  const correct = new Set(card.answer.split(''));
+
+  let isRight = false;
+  if (mode === 'exam') {
+    isRight = selected.size === correct.size && [...selected].every(l => correct.has(l));
+    if (isRight) score++;
+    totalAnswered++;
+  }
+
+  document.querySelectorAll('.option-btn').forEach(btn => {
+    const letter = btn.dataset.letter;
+    btn.disabled = true;
+    if (mode === 'exam') {
+      const wasSelected = selected.has(letter);
+      const isCorrect = correct.has(letter);
+      if (wasSelected && isCorrect) btn.classList.add('correct');
+      else if (wasSelected && !isCorrect) { btn.classList.remove('selected'); btn.classList.add('wrong'); }
+      else if (!wasSelected && isCorrect) btn.classList.add('missed');
+      else btn.classList.remove('selected');
+    } else {
+      if (correct.has(letter)) btn.classList.add('correct');
+    }
+  });
+
+  // Explanation
+  const exp = document.getElementById('explanation');
+  exp.classList.remove('hidden');
+  let badge = '';
+  if (mode === 'exam') {
+    badge = isRight
+      ? `<div class="result-badge ok">✓ Bonne réponse — ${card.answer}</div>`
+      : `<div class="result-badge ko">✗ Réponse correcte : ${card.answer}</div>`;
+  } else {
+    badge = `<div class="result-badge ok">Réponse : ${card.answer}</div>`;
+  }
+  exp.innerHTML = `${badge}<strong>Explication :</strong> ${card.explanation}`;
+
+  document.getElementById('btn-validate').classList.add('hidden');
+  const isLast = current === sessionQueue.length - 1;
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.classList.remove('hidden');
+  nextBtn.textContent = isLast ? 'Voir les résultats →' : 'Suivant →';
+
+  if (mode === 'exam') {
+    const pct = Math.round((score / totalAnswered) * 100);
+    document.getElementById('hdr-score').textContent = `${pct}%`;
+  }
+}
+
+function nextQuestion() {
+  if (current === sessionQueue.length - 1) {
+    showResults();
+    return;
+  }
+  current++;
+  renderQuestion();
+}
+
+function showResults() {
+  document.getElementById('quiz-screen').classList.add('hidden');
+  document.getElementById('results-screen').classList.remove('hidden');
+
+  const total = sessionQueue.length;
+  const pct = mode === 'exam' ? Math.round((score / total) * 100) : 100;
+  const wrong = total - score;
+
+  document.getElementById('res-subtitle').textContent =
+    mode === 'exam' ? `${total} questions — mode examen` : `${total} questions — mode révision`;
+  document.getElementById('res-pct').textContent = mode === 'exam' ? `${pct}%` : '✓';
+  document.getElementById('res-correct').textContent = mode === 'exam' ? score : total;
+  document.getElementById('res-wrong').textContent = mode === 'exam' ? wrong : 0;
+  document.getElementById('res-total-n').textContent = total;
+
+  // Ring animation
+  const circle = document.getElementById('ring-circle');
+  const circumference = 415;
+  const offset = circumference - (circumference * pct / 100);
+  setTimeout(() => {
+    circle.style.transition = 'stroke-dashoffset 1s ease';
+    circle.style.strokeDashoffset = offset;
+  }, 100);
+}
+
+// Init
+document.getElementById('hdr-total').textContent = CARDS.length;
+</script>
+</body>
+</html>
